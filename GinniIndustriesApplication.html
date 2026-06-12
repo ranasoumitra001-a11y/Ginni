@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ginni Industries — Order Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --flame: #E8470A;
+    --flame-dark: #C23A06;
+    --flame-light: #FFF0EA;
+    --flame-mid: #F97040;
+    --ink: #0F0F0E;
+    --ink-soft: #2C2B29;
+    --mist: #F5F4F0;
+    --mist-deep: #ECEAE3;
+    --stone: #8A8880;
+    --stone-light: #C4C2BC;
+    --white: #FDFCF9;
+    --success: #1A7C4A;
+    --success-bg: #E8F5EE;
+    --warning: #8A5B00;
+    --warning-bg: #FFF8E1;
+    --danger: #C0392B;
+    --danger-bg: #FDEDEC;
+    --info: #1A4B8A;
+    --info-bg: #EBF2FB;
+    --border: rgba(15,15,14,0.1);
+    --border-med: rgba(15,15,14,0.18);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.07);
+    --radius: 10px;
+    --radius-lg: 16px;
+    --sidebar-w: 240px;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--mist);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── LAYOUT ── */
+  .app-shell { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--ink);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    z-index: 100;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-brand {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .brand-icon {
+    width: 32px; height: 32px;
+    background: var(--flame);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .brand-name {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--white);
+  }
+
+  .brand-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-left: 42px;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 12px 0;
+    overflow-y: auto;
+  }
+
+  .nav-section {
+    padding: 16px 20px 6px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.55);
+    font-size: 13.5px;
+    font-weight: 400;
+    transition: all 0.15s;
+    border-radius: 0;
+    position: relative;
+  }
+
+  .nav-item:hover { color: var(--white); background: rgba(255,255,255,0.06); }
+
+  .nav-item.active {
+    color: var(--white);
+    background: rgba(232,71,10,0.15);
+  }
+
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 6px; bottom: 6px;
+    width: 3px;
+    background: var(--flame);
+    border-radius: 0 3px 3px 0;
+  }
+
+  .nav-icon {
+    width: 18px; height: 18px;
+    opacity: 0.8;
+    flex-shrink: 0;
+  }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--flame);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  .sidebar-user {
+    padding: 14px 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .user-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--flame);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { font-size: 13px; font-weight: 500; color: white; }
+  .user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+  .logout-btn {
+    background: none; border: none; cursor: pointer;
+    color: rgba(255,255,255,0.3);
+    padding: 4px;
+    transition: color 0.15s;
+  }
+  .logout-btn:hover { color: var(--flame); }
+
+  /* ── MAIN CONTENT ── */
+  .main-content {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    flex: 1;
+  }
+
+  .search-wrap {
+    position: relative;
+  }
+
+  .search-wrap input {
+    background: var(--mist);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px 7px 34px;
+    font-size: 13px;
+    width: 240px;
+    font-family: var(--font);
+    color: var(--ink);
+    transition: all 0.15s;
+  }
+
+  .search-wrap input:focus {
+    outline: none;
+    border-color: var(--flame);
+    background: white;
+    width: 280px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 10px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--stone);
+    pointer-events: none;
+  }
+
+  .page-content {
+    padding: 28px;
+    flex: 1;
+  }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .login-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 40px 44px;
+    width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .login-logo-icon {
+    width: 40px; height: 40px;
+    background: var(--flame);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .login-logo-text {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .login-subtitle {
+    font-size: 13px;
+    color: var(--stone);
+    margin-bottom: 28px;
+  }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: var(--stone);
+    margin-bottom: 6px;
+  }
+
+  .form-control {
+    width: 100%;
+    border: 1.5px solid var(--border-med);
+    border-radius: 8px;
+    padding: 10px 13px;
+    font-size: 14px;
+    font-family: var(--font);
+    color: var(--ink);
+    background: var(--white);
+    transition: all 0.15s;
+    appearance: none;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--flame);
+    box-shadow: 0 0 0 3px rgba(232,71,10,0.1);
+  }
+
+  select.form-control {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238A8880' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    font-family: var(--font);
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--flame);
+    color: white;
+    border-color: var(--flame);
+  }
+
+  .btn-primary:hover {
+    background: var(--flame-dark);
+    border-color: var(--flame-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(232,71,10,0.3);
+  }
+
+  .btn-secondary {
+    background: var(--white);
+    color: var(--ink-soft);
+    border-color: var(--border-med);
+  }
+
+  .btn-secondary:hover { background: var(--mist); }
+
+  .btn-success {
+    background: var(--success);
+    color: white;
+    border-color: var(--success);
+  }
+
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+    border-color: var(--danger);
+  }
+
+  .btn-sm { padding: 6px 12px; font-size: 12.5px; }
+  .btn-full { width: 100%; justify-content: center; }
+
+  .login-error {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  /* ── STATS CARDS ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--stone);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -1px;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-trend {
+    font-size: 12px;
+    color: var(--stone);
+  }
+
+  .stat-accent { border-top: 3px solid var(--flame); }
+  .stat-success { border-top: 3px solid var(--success); }
+  .stat-warning { border-top: 3px solid #E6A817; }
+  .stat-info { border-top: 3px solid var(--info); }
+
+  /* ── PIPELINE ── */
+  .pipeline {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 28px;
+  }
+
+  .pipeline-step {
+    flex: 1;
+    min-width: 120px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    position: relative;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .pipeline-step:first-child { border-radius: 10px 0 0 10px; }
+  .pipeline-step:last-child { border-radius: 0 10px 10px 0; }
+
+  .pipeline-step + .pipeline-step { border-left: none; }
+
+  .pipeline-step.active { background: var(--flame-light); }
+
+  .pipeline-step.done { background: var(--success-bg); }
+
+  .pipeline-number {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--stone);
+    margin-bottom: 4px;
+    font-family: var(--mono);
+  }
+
+  .pipeline-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  .pipeline-count {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 4px;
+  }
+
+  /* ── FILTERS ── */
+  .filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    border: 1.5px solid var(--border-med);
+    background: var(--white);
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--ink-soft);
+  }
+
+  .filter-chip:hover { border-color: var(--flame); color: var(--flame); }
+
+  .filter-chip.active {
+    background: var(--flame);
+    border-color: var(--flame);
+    color: white;
+  }
+
+  /* ── TABLE ── */
+  .table-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .table-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .table-title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    padding: 11px 16px;
+    background: var(--mist);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--stone);
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody td {
+    padding: 12px 16px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  tbody tr:hover { background: rgba(232,71,10,0.025); }
+
+  .order-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--flame);
+    font-weight: 500;
+  }
+
+  /* ── STATUS BADGES ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .badge-created { background: var(--mist-deep); color: var(--ink-soft); }
+  .badge-created::before { background: var(--stone); }
+
+  .badge-confirmed { background: var(--info-bg); color: var(--info); }
+  .badge-confirmed::before { background: var(--info); }
+
+  .badge-payment { background: var(--warning-bg); color: var(--warning); }
+  .badge-payment::before { background: #E6A817; }
+
+  .badge-invoice { background: #FFF3E0; color: #BF6000; }
+  .badge-invoice::before { background: #E67E00; }
+
+  .badge-filled { background: #E8F5E9; color: #1B5E20; }
+  .badge-filled::before { background: #2E7D32; }
+
+  .badge-dispatched { background: var(--success-bg); color: var(--success); }
+  .badge-dispatched::before { background: var(--success); }
+
+  .badge-completed { background: #E3F2FD; color: #0D47A1; }
+  .badge-completed::before { background: #1565C0; }
+
+  .badge-closed { background: var(--mist-deep); color: var(--stone); }
+  .badge-closed::before { background: var(--stone-light); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(2px);
+  }
+
+  .modal {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 620px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+  }
+
+  .modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    flex: 1;
+  }
+
+  .modal-subtitle {
+    font-size: 12px;
+    color: var(--stone);
+    margin-top: 2px;
+  }
+
+  .modal-close {
+    background: none; border: none; cursor: pointer;
+    color: var(--stone);
+    padding: 4px;
+    transition: color 0.15s;
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .modal-close:hover { color: var(--ink); }
+
+  .modal-body { padding: 20px 24px; }
+
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  /* ── FORM GRID ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-span-full { grid-column: 1 / -1; }
+
+  .form-group { display: flex; flex-direction: column; }
+
+  textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .form-helper {
+    font-size: 11px;
+    color: var(--stone);
+    margin-top: 4px;
+  }
+
+  /* ── PROGRESS TRACKER ── */
+  .progress-tracker {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    margin: 20px 0;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .tracker-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 80px;
+    position: relative;
+  }
+
+  .tracker-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    right: -50%;
+    height: 2px;
+    background: var(--border-med);
+    z-index: 0;
+  }
+
+  .tracker-step.done:not(:last-child)::after { background: var(--success); }
+
+  .tracker-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border-med);
+    background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--mono);
+    color: var(--stone);
+    position: relative;
+    z-index: 1;
+    transition: all 0.2s;
+  }
+
+  .tracker-step.done .tracker-dot {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+
+  .tracker-step.active .tracker-dot {
+    background: var(--flame);
+    border-color: var(--flame);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(232,71,10,0.15);
+  }
+
+  .tracker-label {
+    font-size: 10px;
+    color: var(--stone);
+    text-align: center;
+    margin-top: 6px;
+    line-height: 1.3;
+  }
+
+  .tracker-step.active .tracker-label { color: var(--flame); font-weight: 500; }
+  .tracker-step.done .tracker-label { color: var(--success); }
+
+  /* ── ORDER DETAIL ── */
+  .order-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 16px;
+  }
+
+  .detail-row {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--stone);
+    margin-bottom: 3px;
+  }
+
+  .detail-value {
+    font-size: 13.5px;
+    color: var(--ink);
+    font-weight: 450;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 20px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--stone);
+  }
+
+  .empty-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+
+  .empty-title { font-size: 16px; font-weight: 500; color: var(--ink-soft); margin-bottom: 6px; }
+  .empty-sub { font-size: 13px; }
+
+  /* ── TOAST ── */
+  #toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toast {
+    background: var(--ink);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 340px;
+    animation: slideUp 0.3s ease;
+  }
+
+  .toast.success { background: var(--success); }
+  .toast.error { background: var(--danger); }
+  .toast.warning { background: #B36B00; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── LOADING ── */
+  .loading-spinner {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .page-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    flex-direction: column;
+    gap: 14px;
+    color: var(--stone);
+  }
+
+  .page-loader .loading-spinner {
+    border-color: rgba(232,71,10,0.2);
+    border-top-color: var(--flame);
+    width: 28px; height: 28px;
+    border-width: 3px;
+  }
+
+  /* ── MOBILE TOGGLE ── */
+  .mobile-menu-btn {
+    display: none;
+    background: none; border: none;
+    cursor: pointer;
+    padding: 6px;
+    color: var(--ink-soft);
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 99;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    :root { --sidebar-w: 260px; }
+
+    .sidebar {
+      transform: translateX(-100%);
+    }
+
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay.open { display: block; }
+    .mobile-menu-btn { display: flex; align-items: center; }
+
+    .main-content { margin-left: 0; }
+
+    .form-grid { grid-template-columns: 1fr; }
+    .order-detail-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .page-content { padding: 16px; }
+
+    .search-wrap input { width: 160px; }
+    .search-wrap input:focus { width: 200px; }
+  }
+
+  /* ── FILE UPLOAD ── */
+  .file-upload-area {
+    border: 2px dashed var(--border-med);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--mist);
+  }
+
+  .file-upload-area:hover {
+    border-color: var(--flame);
+    background: var(--flame-light);
+  }
+
+  .file-upload-area input { display: none; }
+  .file-upload-text { font-size: 13px; color: var(--stone); }
+  .file-upload-text strong { color: var(--flame); }
+  .file-name { font-size: 12px; color: var(--success); margin-top: 6px; font-family: var(--mono); }
+
+  /* ── NOTIFICATION DOT ── */
+  .notif-dot {
+    width: 8px; height: 8px;
+    background: var(--flame);
+    border-radius: 50%;
+    position: absolute;
+    top: 8px; right: 8px;
+  }
+
+  /* ── HIDDEN PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">🔥</div>
+      <div class="login-logo-text">Ginni Industries</div>
+    </div>
+    <div class="login-subtitle">Order Management System — Please sign in</div>
+
+    <div id="login-error" class="login-error"></div>
+
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input type="text" id="login-user" class="form-control" placeholder="Enter your username">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" id="login-pass" class="form-control" placeholder="Enter your password">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Role</label>
+      <select id="login-role" class="form-control">
+        <option value="">Select your role</option>
+        <option value="admin">Admin</option>
+        <option value="crm">CRM</option>
+        <option value="accountant">Accountant</option>
+        <option value="plant_manager">Plant Manager</option>
+        <option value="store_incharge">Store Incharge</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="handleLogin()" style="margin-top: 8px;">
+      Sign In
+    </button>
+
+    <p style="text-align:center;margin-top:14px;font-size:12px;color:var(--stone);">
+      Demo: use any username, password: <strong>demo123</strong>
+    </p>
+  </div>
+</div>
+
+<!-- ── APP SHELL ── -->
+<div class="app-shell" id="app-shell" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <div class="brand-icon">🔥</div>
+        <div class="brand-name">Ginni Industries</div>
+      </div>
+      <div class="brand-sub">Order Management</div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <!-- Populated by JS based on role -->
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name-display">—</div>
+        <div class="user-role" id="user-role-display">—</div>
+      </div>
+      <button class="logout-btn" onclick="handleLogout()" title="Sign out">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="topbar">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="search-wrap">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="global-search" placeholder="Search orders..." oninput="handleSearch(this.value)">
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card stat-accent">
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-value" id="stat-total">—</div>
+            <div class="stat-trend">All time</div>
+          </div>
+          <div class="stat-card stat-warning">
+            <div class="stat-label">Pending</div>
+            <div class="stat-value" id="stat-pending">—</div>
+            <div class="stat-trend">Requires action</div>
+          </div>
+          <div class="stat-card stat-success">
+            <div class="stat-label">Completed</div>
+            <div class="stat-value" id="stat-completed">—</div>
+            <div class="stat-trend">This month</div>
+          </div>
+          <div class="stat-card stat-info">
+            <div class="stat-label">Revenue</div>
+            <div class="stat-value" id="stat-revenue">—</div>
+            <div class="stat-trend">Order value</div>
+          </div>
+        </div>
+
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--stone);letter-spacing:0.5px;text-transform:uppercase;">Order Pipeline</div>
+        <div class="pipeline" id="pipeline-view"></div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Recent Orders</div>
+            <div style="display:flex;gap:8px;" id="dashboard-actions"></div>
+          </div>
+          <div class="filter-bar" style="padding:12px 16px 0;">
+            <span class="filter-chip active" onclick="filterOrders('all', this)">All</span>
+            <span class="filter-chip" onclick="filterOrders('Order Created', this)">Created</span>
+            <span class="filter-chip" onclick="filterOrders('Order Confirmed', this)">Confirmed</span>
+            <span class="filter-chip" onclick="filterOrders('Payment Verified', this)">Payment</span>
+            <span class="filter-chip" onclick="filterOrders('Gas Filled', this)">Filled</span>
+            <span class="filter-chip" onclick="filterOrders('Dispatched', this)">Dispatched</span>
+            <span class="filter-chip" onclick="filterOrders('Completed', this)">Completed</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Gas Type</th>
+                  <th>Qty</th>
+                  <th>Value</th>
+                  <th>Payment</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table-body">
+                <tr><td colspan="9"><div class="page-loader"><div class="loading-spinner"></div><span>Loading orders…</span></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MY TASKS -->
+      <div class="page" id="page-tasks">
+        <div class="table-card">
+          <div class="table-header">
+            <div>
+              <div class="table-title">My Tasks</div>
+              <div style="font-size:12px;color:var(--stone);margin-top:2px;" id="tasks-sub">Orders requiring your action</div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Gas Type</th>
+                  <th>Qty</th>
+                  <th>Current Status</th>
+                  <th>Order Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="tasks-table-body">
+                <tr><td colspan="7"><div class="page-loader"><div class="loading-spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS (Admin) -->
+      <div class="page" id="page-reports">
+        <div class="stats-grid" id="report-stats"></div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Full Order Report</div>
+            <button class="btn btn-secondary btn-sm" onclick="exportCSV()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export CSV
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th><th>Customer</th><th>Contact</th><th>Gas Type</th>
+                  <th>Qty</th><th>Value</th><th>Payment Type</th><th>Status</th><th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="report-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ── ORDER DETAIL MODAL ── -->
+<div class="modal-overlay" id="order-modal" style="display:none;" onclick="closeModalOutside(event)">
+  <div class="modal" id="order-modal-content">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title">Order Details</div>
+        <div class="modal-subtitle" id="modal-subtitle"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div id="toast-container"></div>
+
+<script>
+// ============================================================
+// CONFIG — Replace with your deployed Google Apps Script URL
+// ============================================================
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyV18Zi_LOsdyGv-OyZkSTysXsAJbDYzwRi3fjcATl2xfVrv1cptJvmdr5ywijr7WMM6A/exec';
+
+// ============================================================
+// AUTH & SESSION
+// ============================================================
+const DEMO_CREDENTIALS = { password: 'demo123' };
+
+const ROLE_CONFIG = {
+  admin: {
+    label: 'Administrator',
+    nav: ['dashboard', 'tasks', 'reports'],
+    taskStatuses: ['Order Created', 'Order Confirmed', 'Payment Verified', 'Invoice Generated', 'Gas Filled', 'Dispatched', 'Completed'],
+    color: '#7B5EA7'
+  },
+  crm: {
+    label: 'CRM Executive',
+    nav: ['dashboard', 'tasks'],
+    taskStatuses: ['Order Created', 'Order Confirmed', 'Dispatched'],
+    color: '#E8470A'
+  },
+  accountant: {
+    label: 'Accountant',
+    nav: ['dashboard', 'tasks'],
+    taskStatuses: ['Order Confirmed', 'Payment Verified'],
+    color: '#1A7C4A'
+  },
+  plant_manager: {
+    label: 'Plant Manager',
+    nav: ['dashboard', 'tasks'],
+    taskStatuses: ['Payment Verified', 'Invoice Generated'],
+    color: '#1A4B8A'
+  },
+  store_incharge: {
+    label: 'Store Incharge',
+    nav: ['dashboard', 'tasks'],
+    taskStatuses: ['Gas Filled'],
+    color: '#8A5B00'
+  }
+};
+
+const STATUS_FLOW = [
+  'Order Created',
+  'Order Confirmed',
+  'Payment Verified',
+  'Invoice Generated',
+  'Gas Filled',
+  'Dispatched',
+  'Completed',
+  'Closed'
+];
+
+let currentUser = null;
+let allOrders = [];
+let currentFilter = 'all';
+
+function handleLogin() {
+  const username = document.getElementById('login-user').value.trim();
+  const password = document.getElementById('login-pass').value;
+  const role = document.getElementById('login-role').value;
+  const errEl = document.getElementById('login-error');
+
+  errEl.style.display = 'none';
+
+  if (!username || !password || !role) {
+    errEl.textContent = 'Please fill in all fields.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if (password !== DEMO_CREDENTIALS.password) {
+    errEl.textContent = 'Invalid credentials. Demo password: demo123';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  currentUser = { username, role, label: ROLE_CONFIG[role].label };
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'flex';
+
+  // Set user info in sidebar
+  document.getElementById('user-name-display').textContent = username;
+  document.getElementById('user-role-display').textContent = ROLE_CONFIG[role].label;
+  const initials = username.slice(0, 2).toUpperCase();
+  const avatarEl = document.getElementById('user-avatar');
+  avatarEl.textContent = initials;
+  avatarEl.style.background = ROLE_CONFIG[role].color;
+
+  buildNav(role);
+  navigateTo('dashboard');
+  loadOrders();
+}
+
+function handleLogout() {
+  currentUser = null;
+  allOrders = [];
+  document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-role').value = '';
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+const NAV_ITEMS = {
+  dashboard: { label: 'Dashboard', icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>` },
+  tasks: { label: 'My Tasks', icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>` },
+  reports: { label: 'Reports', icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>` }
+};
+
+function buildNav(role) {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  const items = ROLE_CONFIG[role].nav;
+
+  const section = document.createElement('div');
+  section.className = 'nav-section';
+  section.textContent = 'Navigation';
+  nav.appendChild(section);
+
+  items.forEach(key => {
+    const item = document.createElement('div');
+    item.className = 'nav-item';
+    item.id = 'nav-' + key;
+    item.innerHTML = `<span class="nav-icon">${NAV_ITEMS[key].icon}</span>${NAV_ITEMS[key].label}`;
+    item.onclick = () => navigateTo(key);
+    nav.appendChild(item);
+  });
+}
+
+function navigateTo(page) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+  const navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+  const pageEl = document.getElementById('page-' + page);
+  if (pageEl) pageEl.classList.add('active');
+
+  const titles = { dashboard: 'Dashboard', tasks: 'My Tasks', reports: 'Reports & Analytics' };
+  document.getElementById('topbar-title').textContent = titles[page] || page;
+
+  if (page === 'tasks') renderTasksPage();
+  if (page === 'reports') renderReportsPage();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+
+// ============================================================
+// API CALLS — JSONP trick to bypass CORS from localhost
+// ============================================================
+function gasRequest(action, data = {}) {
+  return new Promise((resolve) => {
+    if (GAS_URL === 'YOUR_APPS_SCRIPT_DEPLOYMENT_URL_HERE') {
+      resolve(demoApiHandler(action, data));
+      return;
+    }
+
+    // Use JSONP — only way to call GAS from localhost without CORS error
+    const callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+
+    // Flatten data
+    const flat = {};
+    for (const [k, v] of Object.entries(data)) {
+      flat[k] = typeof v === 'object' ? JSON.stringify(v) : String(v ?? '');
+    }
+
+    const params = new URLSearchParams({ action, callback: callbackName, ...flat });
+    const url = `${GAS_URL}?${params}`;
+
+    // Set timeout — fallback to demo if GAS doesn't respond in 10s
+    const timeout = setTimeout(() => {
+      cleanup();
+      console.warn('GAS timeout — using demo fallback');
+      resolve(demoApiHandler(action, data));
+    }, 10000);
+
+    function cleanup() {
+      clearTimeout(timeout);
+      if (document.getElementById(callbackName)) {
+        document.getElementById(callbackName).remove();
+      }
+      delete window[callbackName];
+    }
+
+    // JSONP callback
+    window[callbackName] = function(result) {
+      cleanup();
+      resolve(result);
+    };
+
+    // Inject script tag
+    const script = document.createElement('script');
+    script.id = callbackName;
+    script.src = url;
+    script.onerror = function() {
+      cleanup();
+      console.error('GAS script error');
+      resolve(demoApiHandler(action, data));
+    };
+    document.body.appendChild(script);
+  });
+}
+
+async function apiCall(action, data = {}) {
+  return gasRequest(action, data);
+}
+
+async function apiPost(action, data = {}) {
+  return gasRequest(action, data);
+}
+
+// ============================================================
+// DEMO DATA ENGINE
+// ============================================================
+let demoOrders = [
+  { OrderID: 'GI-2401', CustomerName: 'Ravi Kumar', Contact: '9876543210', Address: '12 Main St, Ranchi', GasType: 'LPG 19kg', Quantity: 50, OrderValue: 95000, PaymentType: 'Advance', OrderDate: '2024-01-15', OrderStatus: 'Completed' },
+  { OrderID: 'GI-2402', CustomerName: 'Priya Sharma', Contact: '9123456780', Address: '45 Park Lane, Jamshedpur', GasType: 'CNG', Quantity: 100, OrderValue: 180000, PaymentType: 'Credit', OrderDate: '2024-01-18', OrderStatus: 'Dispatched' },
+  { OrderID: 'GI-2403', CustomerName: 'Amit Singh', Contact: '9988776655', Address: '7 Ring Road, Dhanbad', GasType: 'LPG 14.2kg', Quantity: 30, OrderValue: 42000, PaymentType: 'Partial', OrderDate: '2024-01-20', OrderStatus: 'Gas Filled' },
+  { OrderID: 'GI-2404', CustomerName: 'Sunita Devi', Contact: '9012345678', Address: '23 MG Road, Bokaro', GasType: 'LPG 19kg', Quantity: 20, OrderValue: 38000, PaymentType: 'Advance', OrderDate: '2024-01-22', OrderStatus: 'Payment Verified' },
+  { OrderID: 'GI-2405', CustomerName: 'Rahul Pandey', Contact: '8765432109', Address: '56 Station Rd, Hazaribagh', GasType: 'CNG', Quantity: 75, OrderValue: 135000, PaymentType: 'Credit', OrderDate: '2024-01-24', OrderStatus: 'Order Confirmed' },
+  { OrderID: 'GI-2406', CustomerName: 'Meena Gupta', Contact: '7654321098', Address: '90 Civil Lines, Deoghar', GasType: 'LPG 5kg', Quantity: 200, OrderValue: 70000, PaymentType: 'Advance', OrderDate: '2024-01-25', OrderStatus: 'Order Created' },
+  { OrderID: 'GI-2407', CustomerName: 'Suresh Yadav', Contact: '9871234560', Address: '34 NH-2, Giridih', GasType: 'LPG 14.2kg', Quantity: 60, OrderValue: 84000, PaymentType: 'Partial', OrderDate: '2024-01-26', OrderStatus: 'Invoice Generated' },
+  { OrderID: 'GI-2408', CustomerName: 'Lakshmi Prasad', Contact: '9765432100', Address: '11 Circular Rd, Ramgarh', GasType: 'CNG', Quantity: 150, OrderValue: 270000, PaymentType: 'Advance', OrderDate: '2024-01-27', OrderStatus: 'Order Created' }
+];
+
+let nextOrderNum = 2409;
+
+function demoApiHandler(action, data) {
+  switch (action) {
+    case 'getOrders':
+      return { success: true, orders: [...demoOrders] };
+    case 'createOrder': {
+      const newId = 'GI-' + nextOrderNum++;
+      const order = {
+        OrderID: newId,
+        CustomerName: data.CustomerName,
+        Contact: data.Contact,
+        Address: data.Address,
+        GasType: data.GasType,
+        Quantity: parseInt(data.Quantity),
+        OrderValue: parseInt(data.OrderValue),
+        PaymentType: data.PaymentType,
+        OrderDate: new Date().toISOString().split('T')[0],
+        OrderStatus: 'Order Created'
+      };
+      demoOrders.unshift(order);
+      return { success: true, orderId: newId };
+    }
+    case 'updateOrderStatus': {
+      const idx = demoOrders.findIndex(o => o.OrderID === data.OrderID);
+      if (idx !== -1) demoOrders[idx].OrderStatus = data.NewStatus;
+      return { success: true };
+    }
+    default:
+      return { success: true };
+  }
+}
+
+// ============================================================
+// LOAD & RENDER ORDERS
+// ============================================================
+async function loadOrders() {
+  const res = await apiCall('getOrders');
+  if (res.success) {
+    allOrders = res.orders || [];
+    renderDashboard();
+  }
+}
+
+function renderDashboard() {
+  renderStats();
+  renderPipeline();
+  renderOrdersTable(allOrders);
+
+  // Add create button for CRM/Admin
+  const actionsEl = document.getElementById('dashboard-actions');
+  if (['crm', 'admin'].includes(currentUser.role)) {
+    actionsEl.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openCreateOrder()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Order
+    </button>`;
+  }
+}
+
+function renderStats() {
+  const total = allOrders.length;
+  const pending = allOrders.filter(o => !['Completed', 'Closed'].includes(o.OrderStatus)).length;
+  const completed = allOrders.filter(o => ['Completed', 'Closed'].includes(o.OrderStatus)).length;
+  const revenue = allOrders.reduce((sum, o) => sum + (parseFloat(o.OrderValue) || 0), 0);
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-completed').textContent = completed;
+  document.getElementById('stat-revenue').textContent = '₹' + formatNum(revenue);
+}
+
+function formatNum(n) {
+  if (n >= 100000) return (n / 100000).toFixed(1) + 'L';
+  if (n >= 1000) return (n / 1000).toFixed(0) + 'K';
+  return n.toString();
+}
+
+function renderPipeline() {
+  const steps = ['Order Created', 'Order Confirmed', 'Payment Verified', 'Invoice Generated', 'Gas Filled', 'Dispatched', 'Completed'];
+  const labels = ['Created', 'Confirmed', 'Payment', 'Invoice', 'Filled', 'Dispatched', 'Done'];
+  const container = document.getElementById('pipeline-view');
+  container.innerHTML = '';
+
+  steps.forEach((status, i) => {
+    const count = allOrders.filter(o => o.OrderStatus === status).length;
+    const div = document.createElement('div');
+    div.className = 'pipeline-step' + (count > 0 ? ' active' : '');
+    div.innerHTML = `<div class="pipeline-number">STEP ${i + 1}</div>
+      <div class="pipeline-name">${labels[i]}</div>
+      <div class="pipeline-count">${count}</div>`;
+    div.onclick = () => {
+      filterOrders(status, null);
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    };
+    container.appendChild(div);
+  });
+}
+
+function renderOrdersTable(orders) {
+  const tbody = document.getElementById('orders-table-body');
+  if (!orders.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">No orders found</div>
+      <div class="empty-sub">Orders will appear here once created</div>
+    </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = orders.map(o => `
+    <tr>
+      <td><span class="order-id">${o.OrderID}</span></td>
+      <td><strong>${o.CustomerName}</strong><br><span style="font-size:11px;color:var(--stone)">${o.Contact}</span></td>
+      <td>${o.GasType}</td>
+      <td>${o.Quantity}</td>
+      <td>₹${parseInt(o.OrderValue).toLocaleString('en-IN')}</td>
+      <td>${paymentBadge(o.PaymentType)}</td>
+      <td>${statusBadge(o.OrderStatus)}</td>
+      <td style="color:var(--stone);font-size:12px;">${formatDate(o.OrderDate)}</td>
+      <td><button class="btn btn-secondary btn-sm" onclick="viewOrder('${o.OrderID}')">View</button></td>
+    </tr>
+  `).join('');
+}
+
+function statusBadge(status) {
+  const map = {
+    'Order Created': 'badge-created',
+    'Order Confirmed': 'badge-confirmed',
+    'Payment Verified': 'badge-payment',
+    'Invoice Generated': 'badge-invoice',
+    'Gas Filled': 'badge-filled',
+    'Dispatched': 'badge-dispatched',
+    'Completed': 'badge-completed',
+    'Closed': 'badge-closed'
+  };
+  return `<span class="badge ${map[status] || 'badge-created'}">${status}</span>`;
+}
+
+function paymentBadge(type) {
+  const colors = { Advance: 'badge-dispatched', Partial: 'badge-payment', Credit: 'badge-invoice' };
+  return `<span class="badge ${colors[type] || 'badge-created'}">${type}</span>`;
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  try { return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
+  catch { return d; }
+}
+
+function filterOrders(status, chipEl) {
+  if (chipEl) {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chipEl.classList.add('active');
+  }
+  currentFilter = status;
+  const filtered = status === 'all' ? allOrders : allOrders.filter(o => o.OrderStatus === status);
+  renderOrdersTable(filtered);
+}
+
+function handleSearch(val) {
+  const q = val.toLowerCase();
+  const filtered = allOrders.filter(o =>
+    o.OrderID.toLowerCase().includes(q) ||
+    o.CustomerName.toLowerCase().includes(q) ||
+    (o.Contact || '').includes(q) ||
+    (o.GasType || '').toLowerCase().includes(q)
+  );
+  renderOrdersTable(filtered);
+}
+
+// ============================================================
+// TASKS PAGE
+// ============================================================
+function renderTasksPage() {
+  const role = currentUser.role;
+  const statusesForRole = ROLE_CONFIG[role].taskStatuses;
+
+  const myTasks = allOrders.filter(o => statusesForRole.includes(o.OrderStatus));
+  const tbody = document.getElementById('tasks-table-body');
+  document.getElementById('tasks-sub').textContent = `${myTasks.length} order(s) requiring your action`;
+
+  if (!myTasks.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+      <div class="empty-icon">✅</div>
+      <div class="empty-title">All clear!</div>
+      <div class="empty-sub">No pending tasks for your role</div>
+    </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = myTasks.map(o => `
+    <tr>
+      <td><span class="order-id">${o.OrderID}</span></td>
+      <td>${o.CustomerName}</td>
+      <td>${o.GasType}</td>
+      <td>${o.Quantity}</td>
+      <td>${statusBadge(o.OrderStatus)}</td>
+      <td style="color:var(--stone);font-size:12px;">${formatDate(o.OrderDate)}</td>
+      <td><button class="btn btn-primary btn-sm" onclick="viewOrder('${o.OrderID}')">Take Action</button></td>
+    </tr>
+  `).join('');
+}
+
+// ============================================================
+// REPORTS PAGE
+// ============================================================
+function renderReportsPage() {
+  // Stats
+  const byStatus = {};
+  STATUS_FLOW.forEach(s => byStatus[s] = 0);
+  allOrders.forEach(o => { if (byStatus[o.OrderStatus] !== undefined) byStatus[o.OrderStatus]++; });
+
+  const totalRev = allOrders.reduce((s, o) => s + (parseFloat(o.OrderValue) || 0), 0);
+  const creditOrders = allOrders.filter(o => o.PaymentType === 'Credit').length;
+
+  document.getElementById('report-stats').innerHTML = `
+    <div class="stat-card stat-accent"><div class="stat-label">Total Orders</div><div class="stat-value">${allOrders.length}</div></div>
+    <div class="stat-card stat-success"><div class="stat-label">Total Revenue</div><div class="stat-value">₹${formatNum(totalRev)}</div></div>
+    <div class="stat-card stat-warning"><div class="stat-label">Credit Orders</div><div class="stat-value">${creditOrders}</div></div>
+    <div class="stat-card stat-info"><div class="stat-label">Completed</div><div class="stat-value">${byStatus['Completed']}</div></div>
+  `;
+
+  const tbody = document.getElementById('report-table-body');
+  tbody.innerHTML = allOrders.map(o => `
+    <tr>
+      <td><span class="order-id">${o.OrderID}</span></td>
+      <td>${o.CustomerName}</td>
+      <td>${o.Contact}</td>
+      <td>${o.GasType}</td>
+      <td>${o.Quantity}</td>
+      <td>₹${parseInt(o.OrderValue).toLocaleString('en-IN')}</td>
+      <td>${paymentBadge(o.PaymentType)}</td>
+      <td>${statusBadge(o.OrderStatus)}</td>
+      <td style="font-size:12px;color:var(--stone)">${formatDate(o.OrderDate)}</td>
+    </tr>
+  `).join('');
+}
+
+function exportCSV() {
+  const headers = ['OrderID','CustomerName','Contact','Address','GasType','Quantity','OrderValue','PaymentType','OrderDate','OrderStatus'];
+  const rows = allOrders.map(o => headers.map(h => `"${o[h] || ''}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'ginni_orders.csv'; a.click();
+  showToast('CSV exported successfully', 'success');
+}
+
+// ============================================================
+// VIEW ORDER MODAL
+// ============================================================
+function viewOrder(orderId) {
+  const order = allOrders.find(o => o.OrderID === orderId);
+  if (!order) return;
+
+  const currentStatusIdx = STATUS_FLOW.indexOf(order.OrderStatus);
+
+  document.getElementById('modal-title').textContent = orderId;
+  document.getElementById('modal-subtitle').innerHTML = `${order.CustomerName} — ${statusBadge(order.OrderStatus)}`;
+
+  // Build tracker
+  const trackerHtml = `
+    <div class="progress-tracker">
+      ${STATUS_FLOW.filter(s => s !== 'Closed').map((s, i) => {
+        const done = i < currentStatusIdx;
+        const active = i === currentStatusIdx;
+        return `<div class="tracker-step ${done ? 'done' : active ? 'active' : ''}">
+          <div class="tracker-dot">${done ? '✓' : i + 1}</div>
+          <div class="tracker-label">${s.replace('Order ', '').replace('Payment ', 'Pay ').replace('Invoice ', 'Inv ')}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  // Order details
+  const detailsHtml = `
+    <div class="section-title">📦 Order Information</div>
+    <div class="order-detail-grid">
+      ${detail('Order ID', order.OrderID)}
+      ${detail('Order Date', formatDate(order.OrderDate))}
+      ${detail('Customer Name', order.CustomerName)}
+      ${detail('Contact', order.Contact)}
+      ${detail('Delivery Address', order.Address)}
+      ${detail('Gas Type', order.GasType)}
+      ${detail('Quantity', order.Quantity)}
+      ${detail('Order Value', '₹' + parseInt(order.OrderValue).toLocaleString('en-IN'))}
+      ${detail('Payment Type', order.PaymentType)}
+      ${detail('Current Status', order.OrderStatus)}
+    </div>`;
+
+  // Action form based on role and current status
+  const actionHtml = buildActionForm(order, currentUser.role);
+
+  document.getElementById('modal-body').innerHTML = trackerHtml + detailsHtml + actionHtml;
+
+  // Footer buttons
+  document.getElementById('modal-footer').innerHTML = buildModalFooter(order, currentUser.role);
+
+  document.getElementById('order-modal').style.display = 'flex';
+}
+
+function detail(label, value) {
+  return `<div class="detail-row"><div class="detail-label">${label}</div><div class="detail-value">${value || '—'}</div></div>`;
+}
+
+function buildActionForm(order, role) {
+  const status = order.OrderStatus;
+  let html = '';
+
+  // CRM: Confirm order
+  if (role === 'crm' && status === 'Order Created') {
+    html = `<div class="section-title">✅ Confirm Order</div>
+      <p style="font-size:13px;color:var(--stone);margin-bottom:12px;">Review the order details and confirm to proceed to payment verification.</p>`;
+  }
+  // Accountant: Payment verification
+  else if (role === 'accountant' && status === 'Order Confirmed') {
+    html = `<div class="section-title">💳 Payment Verification</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Amount Received (₹)</label>
+          <input type="number" id="f-pay-received" class="form-control" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Status</label>
+          <select id="f-pay-status" class="form-control"><option>Full</option><option>Partial</option><option>Credit</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Balance Amount (₹)</label>
+          <input type="number" id="f-balance" class="form-control" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Mode</label>
+          <select id="f-pay-mode" class="form-control"><option>Cash</option><option>NEFT</option><option>Cheque</option><option>UPI</option><option>DD</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Date</label>
+          <input type="date" id="f-pay-date" class="form-control" value="${new Date().toISOString().split('T')[0]}">
+        </div>
+      </div>`;
+  }
+  // Accountant: Invoice Generation
+  else if (role === 'accountant' && status === 'Payment Verified') {
+    html = `<div class="section-title">🧾 Generate Invoice</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Invoice Number</label>
+          <input type="text" id="f-invoice-num" class="form-control" value="INV-${order.OrderID}-${Date.now().toString().slice(-4)}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Invoice Date</label>
+          <input type="date" id="f-invoice-date" class="form-control" value="${new Date().toISOString().split('T')[0]}">
+        </div>
+        <div class="form-group form-span-full">
+          <label class="form-label">Invoice PDF</label>
+          <div class="file-upload-area" onclick="this.querySelector('input').click()">
+            <input type="file" accept=".pdf" onchange="handleFileSelect(this, 'invoice-file-name')">
+            <div class="file-upload-text"><strong>Click to upload</strong> or drag and drop</div>
+            <div class="file-name" id="invoice-file-name"></div>
+          </div>
+        </div>
+      </div>`;
+  }
+  // Plant Manager: Gas Filling
+  else if (role === 'plant_manager' && status === 'Invoice Generated') {
+    html = `<div class="section-title">⚙️ Gas Filling</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Filling Date</label>
+          <input type="date" id="f-fill-date" class="form-control" value="${new Date().toISOString().split('T')[0]}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cylinders Filled</label>
+          <input type="number" id="f-fill-qty" class="form-control" placeholder="${order.Quantity}">
+        </div>
+        <div class="form-group form-span-full">
+          <label class="form-label">Plant Notes</label>
+          <textarea id="f-plant-notes" class="form-control" placeholder="Any notes about filling…"></textarea>
+        </div>
+      </div>`;
+  }
+  // Store Incharge: Dispatch
+  else if (role === 'store_incharge' && status === 'Gas Filled') {
+    html = `<div class="section-title">🚛 Shipment Dispatch</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Vehicle Number</label>
+          <input type="text" id="f-vehicle" class="form-control" placeholder="e.g. JH01AB1234">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dispatch Date</label>
+          <input type="date" id="f-dispatch-date" class="form-control" value="${new Date().toISOString().split('T')[0]}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dispatched Qty</label>
+          <input type="number" id="f-dispatch-qty" class="form-control" placeholder="${order.Quantity}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gatepass</label>
+          <div class="file-upload-area" onclick="this.querySelector('input').click()">
+            <input type="file" onchange="handleFileSelect(this, 'gatepass-file-name')">
+            <div class="file-upload-text"><strong>Upload gatepass</strong></div>
+            <div class="file-name" id="gatepass-file-name"></div>
+          </div>
+        </div>
+      </div>`;
+  }
+  // CRM: Feedback
+  else if (role === 'crm' && status === 'Dispatched') {
+    html = `<div class="section-title">⭐ Customer Feedback</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Delivery Confirmed</label>
+          <select id="f-delivery" class="form-control"><option>Yes</option><option>No</option><option>Partial</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Rating (1–5)</label>
+          <select id="f-rating" class="form-control"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select>
+        </div>
+        <div class="form-group form-span-full">
+          <label class="form-label">Customer Feedback</label>
+          <textarea id="f-feedback" class="form-control" placeholder="Customer remarks…"></textarea>
+        </div>
+      </div>`;
+  }
+  // Follow-up
+  else if (role === 'accountant' && status === 'Completed' && ['Partial', 'Credit'].includes(order.PaymentType)) {
+    html = `<div class="section-title">💰 Payment Follow-up</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Follow-up Date</label>
+          <input type="date" id="f-followup-date" class="form-control" value="${new Date().toISOString().split('T')[0]}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount Collected (₹)</label>
+          <input type="number" id="f-collected" class="form-control" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Remaining Balance (₹)</label>
+          <input type="number" id="f-remaining" class="form-control" placeholder="0">
+        </div>
+      </div>`;
+  }
+
+  return html;
+}
+
+function buildModalFooter(order, role) {
+  const status = order.OrderStatus;
+  let primaryBtn = '';
+
+  if (role === 'crm' && status === 'Order Created') {
+    primaryBtn = `<button class="btn btn-success" onclick="advanceOrder('${order.OrderID}', 'Order Confirmed')">Confirm Order</button>`;
+  } else if (role === 'accountant' && status === 'Order Confirmed') {
+    primaryBtn = `<button class="btn btn-success" onclick="submitPayment('${order.OrderID}')">Verify Payment</button>`;
+  } else if (role === 'accountant' && status === 'Payment Verified') {
+    primaryBtn = `<button class="btn btn-success" onclick="submitInvoice('${order.OrderID}')">Generate Invoice</button>`;
+  } else if (role === 'plant_manager' && status === 'Invoice Generated') {
+    primaryBtn = `<button class="btn btn-success" onclick="submitFilling('${order.OrderID}')">Mark Gas Filled</button>`;
+  } else if (role === 'store_incharge' && status === 'Gas Filled') {
+    primaryBtn = `<button class="btn btn-success" onclick="submitDispatch('${order.OrderID}')">Mark Dispatched</button>`;
+  } else if (role === 'crm' && status === 'Dispatched') {
+    primaryBtn = `<button class="btn btn-success" onclick="submitFeedback('${order.OrderID}')">Complete Order</button>`;
+  } else if (role === 'accountant' && status === 'Completed' && ['Partial', 'Credit'].includes(order.PaymentType)) {
+    primaryBtn = `<button class="btn btn-success" onclick="submitFollowup('${order.OrderID}')">Close Order</button>`;
+  } else if (role === 'admin') {
+    primaryBtn = `<button class="btn btn-secondary btn-sm" onclick="showToast('Admin view only — changes must go through role workflow', 'warning')">Admin View</button>`;
+  }
+
+  return `<button class="btn btn-secondary" onclick="closeModal()">Close</button>${primaryBtn}`;
+}
+
+// ============================================================
+// WORKFLOW ACTIONS
+// ============================================================
+async function advanceOrder(orderId, newStatus) {
+  const res = await apiPost('updateOrderStatus', { OrderID: orderId, NewStatus: newStatus });
+  if (res.success) {
+    updateLocalOrder(orderId, { OrderStatus: newStatus });
+    closeModal();
+    showToast(`Order ${orderId} → ${newStatus}`, 'success');
+    refreshCurrentPage();
+  } else { showToast('Update failed', 'error'); }
+}
+
+async function submitPayment(orderId) {
+  const data = {
+    OrderID: orderId,
+    NewStatus: 'Payment Verified',
+    PaymentReceived: document.getElementById('f-pay-received')?.value,
+    PaymentStatus: document.getElementById('f-pay-status')?.value,
+    Balance: document.getElementById('f-balance')?.value,
+    PaymentMode: document.getElementById('f-pay-mode')?.value,
+    PaymentDate: document.getElementById('f-pay-date')?.value
+  };
+  const res = await apiPost('submitPayment', data);
+  if (res.success) {
+    updateLocalOrder(orderId, { OrderStatus: 'Payment Verified' });
+    closeModal(); showToast('Payment verified!', 'success'); refreshCurrentPage();
+  } else { showToast('Error saving payment', 'error'); }
+}
+
+async function submitInvoice(orderId) {
+  const data = {
+    OrderID: orderId,
+    NewStatus: 'Invoice Generated',
+    InvoiceNumber: document.getElementById('f-invoice-num')?.value,
+    InvoiceDate: document.getElementById('f-invoice-date')?.value
+  };
+  const res = await apiPost('submitInvoice', data);
+  if (res.success) {
+    updateLocalOrder(orderId, { OrderStatus: 'Invoice Generated' });
+    closeModal(); showToast('Invoice generated!', 'success'); refreshCurrentPage();
+  } else { showToast('Error', 'error'); }
+}
+
+async function submitFilling(orderId) {
+  const qty = document.getElementById('f-fill-qty')?.value;
+  if (!qty) { showToast('Enter cylinder quantity', 'warning'); return; }
+  const data = {
+    OrderID: orderId,
+    NewStatus: 'Gas Filled',
+    FillingDate: document.getElementById('f-fill-date')?.value,
+    FilledQuantity: qty,
+    PlantNotes: document.getElementById('f-plant-notes')?.value
+  };
+  const res = await apiPost('submitFilling', data);
+  if (res.success) {
+    updateLocalOrder(orderId, { OrderStatus: 'Gas Filled' });
+    closeModal(); showToast('Gas filling confirmed!', 'success'); refreshCurrentPage();
+  }
+}
+
+async function submitDispatch(orderId) {
+  const vehicle = document.getElementById('f-vehicle')?.value;
+  if (!vehicle) { showToast('Enter vehicle number', 'warning'); return; }
+  const data = {
+    OrderID: orderId,
+    NewStatus: 'Dispatched',
+    VehicleNumber: vehicle,
+    DispatchDate: document.getElementById('f-dispatch-date')?.value,
+    DispatchedQty: document.getElementById('f-dispatch-qty')?.value
+  };
+  const res = await apiPost('submitDispatch', data);
+  if (res.success) {
+    updateLocalOrder(orderId, { OrderStatus: 'Dispatched' });
+    closeModal(); showToast('Order dispatched!', 'success'); refreshCurrentPage();
+  }
+}
+
+async function submitFeedback(orderId) {
+  const data = {
+    OrderID: orderId,
+    NewStatus: 'Completed',
+    DeliveryConfirmed: document.getElementById('f-delivery')?.value,
+    Rating: document.getElementById('f-rating')?.value,
+    CustomerFeedback: document.getElementById('f-feedback')?.value
+  };
+  const res = await apiPost('submitFeedback', data);
+  if (res.success) {
+    updateLocalOrder(orderId, { OrderStatus: 'Completed' });
+    closeModal(); showToast('Order completed! ✨', 'success'); refreshCurrentPage();
+  }
+}
+
+async function submitFollowup(orderId) {
+  const data = {
+    OrderID: orderId,
+    NewStatus: 'Closed',
+    FollowupDate: document.getElementById('f-followup-date')?.value,
+    CollectedAmount: document.getElementById('f-collected')?.value,
+    RemainingBalance: document.getElementById('f-remaining')?.value
+  };
+  const res = await apiPost('submitFollowup', data);
+  if (res.success) {
+    updateLocalOrder(orderId, { OrderStatus: 'Closed' });
+    closeModal(); showToast('Order closed!', 'success'); refreshCurrentPage();
+  }
+}
+
+function updateLocalOrder(orderId, updates) {
+  const idx = allOrders.findIndex(o => o.OrderID === orderId);
+  if (idx !== -1) Object.assign(allOrders[idx], updates);
+}
+
+function refreshCurrentPage() {
+  const activePage = document.querySelector('.page.active')?.id;
+  if (activePage === 'page-dashboard') renderDashboard();
+  if (activePage === 'page-tasks') renderTasksPage();
+  if (activePage === 'page-reports') renderReportsPage();
+}
+
+// ============================================================
+// CREATE ORDER MODAL
+// ============================================================
+function openCreateOrder() {
+  document.getElementById('modal-title').textContent = 'New Order';
+  document.getElementById('modal-subtitle').textContent = 'Step 1 — CRM creates a new gas order';
+
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Customer Name *</label>
+        <input type="text" id="nc-name" class="form-control" placeholder="Full name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contact Number *</label>
+        <input type="tel" id="nc-contact" class="form-control" placeholder="10-digit mobile">
+      </div>
+      <div class="form-group form-span-full">
+        <label class="form-label">Delivery Address *</label>
+        <textarea id="nc-address" class="form-control" placeholder="Full delivery address…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gas Type *</label>
+        <select id="nc-gas" class="form-control">
+          <option>LPG 14.2kg</option>
+          <option>LPG 19kg</option>
+          <option>LPG 5kg</option>
+          <option>CNG</option>
+          <option>PNG</option>
+          <option>Industrial Gas</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Quantity (Cylinders) *</label>
+        <input type="number" id="nc-qty" class="form-control" placeholder="0" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Order Value (₹) *</label>
+        <input type="number" id="nc-value" class="form-control" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Payment Type *</label>
+        <select id="nc-payment" class="form-control">
+          <option>Advance</option>
+          <option>Partial</option>
+          <option>Credit</option>
+        </select>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="submitCreateOrder()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Create Order
+    </button>
+  `;
+
+  document.getElementById('order-modal').style.display = 'flex';
+}
+
+async function submitCreateOrder() {
+  const name = document.getElementById('nc-name').value.trim();
+  const contact = document.getElementById('nc-contact').value.trim();
+  const address = document.getElementById('nc-address').value.trim();
+  const qty = document.getElementById('nc-qty').value;
+  const value = document.getElementById('nc-value').value;
+
+  if (!name || !contact || !address || !qty || !value) {
+    showToast('Please fill all required fields', 'warning');
+    return;
+  }
+
+  const btn = document.querySelector('#modal-footer .btn-primary');
+  btn.innerHTML = '<div class="loading-spinner"></div> Creating…';
+  btn.disabled = true;
+
+  const data = {
+    CustomerName: name,
+    Contact: contact,
+    Address: address,
+    GasType: document.getElementById('nc-gas').value,
+    Quantity: qty,
+    OrderValue: value,
+    PaymentType: document.getElementById('nc-payment').value
+  };
+
+  const res = await apiPost('createOrder', data);
+  if (res.success) {
+    closeModal();
+    showToast(`Order ${res.orderId} created!`, 'success');
+    await loadOrders();
+  } else {
+    showToast('Failed to create order', 'error');
+    btn.innerHTML = 'Create Order'; btn.disabled = false;
+  }
+}
+
+// ============================================================
+// UTILITY
+// ============================================================
+function closeModal() {
+  document.getElementById('order-modal').style.display = 'none';
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('order-modal')) closeModal();
+}
+
+function handleFileSelect(input, nameElId) {
+  const file = input.files[0];
+  if (file) {
+    const el = document.getElementById(nameElId);
+    if (el) el.textContent = '📎 ' + file.name;
+  }
+}
+
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+  toast.innerHTML = `<span style="font-size:14px">${icons[type] || ''}</span>${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(8px)'; toast.style.transition = 'all 0.3s'; setTimeout(() => toast.remove(), 300); }, 3500);
+}
+
+// Enter key on login
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+</script>
+</body>
+</html>
